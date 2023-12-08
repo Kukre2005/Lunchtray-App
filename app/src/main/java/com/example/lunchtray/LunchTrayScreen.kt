@@ -35,7 +35,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHost
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.lunchtray.datasource.DataSource
@@ -47,8 +49,8 @@ import com.example.lunchtray.ui.SideDishMenuScreen
 import com.example.lunchtray.ui.StartOrderScreen
 
 enum class LunchTrayScreen(@StringRes val title: Int) {
-    Start(title = R.string.app_name),
-    Entree(title = R.string.choose_entree),
+    Start(R.string.app_name),
+    Entree(R.string.choose_entree),
     SideDish(title = R.string.choose_side_dish),
     Accompaniment(title = R.string.choose_accompaniment),
     Checkout(title = R.string.order_checkout)
@@ -60,7 +62,7 @@ enum class LunchTrayScreen(@StringRes val title: Int) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LunchTrayAppBar(
-    @StringRes currentScreenTitle: Int,
+    currentScreenTitle: Int,
     canNavigateBack: Boolean,
     navigateUp: () -> Unit,
     modifier: Modifier = Modifier
@@ -82,13 +84,14 @@ fun LunchTrayAppBar(
 }
 
 @Composable
-fun LunchTrayApp() {
-    val navController = rememberNavController()
+fun LunchTrayApp(
+    viewModel: OrderViewModel = viewModel(),
+    navController: NavHostController = rememberNavController()
+) {
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentScreen = LunchTrayScreen.valueOf(
         backStackEntry?.destination?.route ?: LunchTrayScreen.Start.name
     )
-    val viewModel: OrderViewModel = viewModel()
 
     Scaffold(
         topBar = {
@@ -103,7 +106,7 @@ fun LunchTrayApp() {
 
         NavHost(
             navController = navController,
-            startDestination = LunchTrayScreen.Start.name,
+            startDestination = LunchTrayScreen.Start.name
         ) {
             composable(route = LunchTrayScreen.Start.name) {
                 StartOrderScreen(
